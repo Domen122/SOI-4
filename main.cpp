@@ -8,36 +8,27 @@
 #include <numeric>
 
 #define MAX_BUFOR 9 // Maksymalna pojemnosc bufora
-
 using namespace std;
-
 vector<int> bufor;
 
+Condition CanAconsume,
+ 	  CanBconsume,
+ 	  CanWrite,
+ 	  CanRead;
 
-void wypisz()
+Monitor Buffer;
+
+void produce
 {
-
-}	
-
-void* produceB(void* ptr)
-{
-
-} 
-
-void* produceA(void* ptr)
-{
-
-}
-
-void* consume(void* numerKonsumenta)
-{
+	srand(time(NULL));
+	int random= rand()%10+1;
 
 }
 
 int main() 
 {
 	
-	pthread_t kons1, kons2, prodA, prodB;
+	/*pthread_t kons1, kons2, prodA, prodB;
 
 	unsigned int *iDKonsumenta1, *iDKonsumenta2;
 
@@ -62,6 +53,6 @@ int main()
 	delete iDKonsumenta1;
 	delete iDKonsumenta2;
 
-	cout << "	W buforze pozostalo " << bufor.size() << " elementow." << endl;
+	cout << "	W buforze pozostalo " << bufor.size() << " elementow." << endl;*/
 	return 0;
 }	

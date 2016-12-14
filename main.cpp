@@ -12,11 +12,10 @@ using namespace std;
 
 
 
-
 class MonitorBuffer:Monitor
 {
 	public:
-		void* produce();
+		void* produce(char name);
 		void* consumeA();
 		void* consumeB();
 		void showBuff();
@@ -29,13 +28,14 @@ class MonitorBuffer:Monitor
 	vector<int> bufor;
 	
 };
-void* MonitorBuffer::produce()
+void* MonitorBuffer::produce(char name)
 {
 	srand(time(NULL));
 	while(true)
 	{
 		int sleepTime= (rand()%5+1)*100000;
 		usleep(sleepTime);
+		cout<<"Producent "<<name<<" chce pisac"<<endl;
 		enter();
 			if(bufor.size()==9)	
 			{
@@ -57,10 +57,11 @@ void* MonitorBuffer::consumeA()
 	{
 		int sleepTime= (rand()%5+1)*100000;
 		usleep(sleepTime);
+		cout<<"A chce konsumowac"<<endl;
 		enter();
 			if(bufor.size()<=3)
 			{
-				cout<<"Nie mozna czytac, nie ma co najmniej 4 elementow w buforze"<<endl;
+				cout<<"A nie mozna czytac, nie ma co najmniej 4 elementow w buforze"<<endl;
 				wait(CanRead);
 			}
 			if((bufor.front()%2)==1)
@@ -73,6 +74,7 @@ void* MonitorBuffer::consumeA()
 			bufor.erase(bufor.begin());
 			showBuff();
 			if(bufor.size()==8)	signal(CanWrite);
+			if((bufor.front()%2)==1) signal(CanBconsume);
 		leave();
 	}
 }
@@ -83,10 +85,11 @@ void* MonitorBuffer::consumeB()
 	{
 		int sleepTime= (rand()%5+1)*100000;
 		usleep(sleepTime);
+		cout<<"B chce konsumowac"<<endl;
 		enter();
 			if(bufor.size()<=3)
 			{
-				cout<<"Nie mozna czytac, nie ma co najmniej 4 elementow w buforze"<<endl;
+				cout<<"B nie mozna czytac, nie ma co najmniej 4 elementow w buforze"<<endl;
 				wait(CanRead);
 			}
 			if((bufor.front()%2)==0)
@@ -99,6 +102,7 @@ void* MonitorBuffer::consumeB()
 			bufor.erase(bufor.begin());
 			showBuff();
 			if(bufor.size()==8)	signal(CanWrite);
+			if((bufor.front()%2)==0) signal(CanAconsume);
 		leave();
 	}
 }
@@ -110,9 +114,13 @@ void MonitorBuffer::showBuff()
 	cout<<endl;
 }
 
-void* do_produce(void* M)
+void* do_produceA(void* M)
 {
-	((MonitorBuffer*) M)->produce();
+	((MonitorBuffer*) M)->produce('A');
+}
+void* do_produceB(void* M)
+{
+	((MonitorBuffer*) M)->produce('B');
 }
 void* do_consumeA(void* M)
 {
@@ -123,6 +131,7 @@ void* do_consumeB(void* M)
 	((MonitorBuffer*) M)->consumeB();
 }
 
+
 int main() 
 {
 	MonitorBuffer *Buff=new MonitorBuffer;
@@ -132,8 +141,8 @@ int main()
 
 	pthread_create(&konsA, NULL, do_consumeA, (void*) Buff);
    	pthread_create(&konsB, NULL, do_consumeB, (void*) Buff);
-	pthread_create(&prodB, NULL, do_produce, (void*) Buff);
-	pthread_create(&prodA, NULL, do_produce, (void*) Buff);
+	pthread_create(&prodB, NULL, do_produceA, (void*) Buff);
+	pthread_create(&prodA, NULL, do_produceB, (void*) Buff);
 
 	pthread_join(konsA, NULL);
     	pthread_join(prodB, NULL);
@@ -141,4 +150,4 @@ int main()
     	pthread_join(prodA, NULL);
 
 	return 0;
-}	
+}	 
